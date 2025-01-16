@@ -17,8 +17,8 @@ def save_figure_to_numpy(fig: plt.Figure) -> np.ndarray:
     Returns:
         ndarray: Numpy array representing the figure.
     """
-    data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep="")
-    data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    data = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
+    data = data.reshape(fig.canvas.get_width_height()[::-1] + (4,))  # RGBA format
     return data
 
 

@@ -37,8 +37,8 @@ model:
       class_path: vocos.feature_extractors.MelSpectrogramFeatures
       init_args:
         sample_rate: 24000
-        n_fft: 1024
-        hop_length: 256
+        n_fft: 960
+        hop_length: 249
         n_mels: 100
         padding: center
 
@@ -54,8 +54,8 @@ model:
       class_path: vocos.heads.ISTFTHead
       init_args:
         dim: 512
-        n_fft: 1024
-        hop_length: 256
+        n_fft: 960
+        hop_length: 240
         padding: center
 
 trainer:
@@ -64,7 +64,7 @@ trainer:
     init_args:
       name: vocos_experiment1  # Optional: name of the experiment
       project: vocos  # Name of the W&B project
-      save_dir: logs1/  # Directory to store offline logs
+      save_dir: logs_10ms/  # Directory to store offline logs
   callbacks:
     - class_path: pytorch_lightning.callbacks.LearningRateMonitor
     - class_path: pytorch_lightning.callbacks.ModelSummary
