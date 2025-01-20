@@ -4,6 +4,8 @@ import torch
 from torch import nn
 from torch.nn.utils import weight_norm, remove_weight_norm
 
+from .tomiinek import CausalConv1d
+
 
 class ConvNeXtBlock(nn.Module):
     """ConvNeXt Block adapted from https://github.com/facebookresearch/ConvNeXt to 1D audio signal.
@@ -25,7 +27,8 @@ class ConvNeXtBlock(nn.Module):
         adanorm_num_embeddings: Optional[int] = None,
     ):
         super().__init__()
-        self.dwconv = nn.Conv1d(dim, dim, kernel_size=7, padding=3, groups=dim)  # depthwise conv
+        #self.dwconv = nn.Conv1d(dim, dim, kernel_size=7, padding=3, groups=dim)  # depthwise conv
+        self.dwconv = CausalConv1d(in_channels=dim, out_channels=dim, kernel_size=7, groups=dim)
         self.adanorm = adanorm_num_embeddings is not None
         if adanorm_num_embeddings:
             self.norm = AdaLayerNorm(adanorm_num_embeddings, dim, eps=1e-6)
