@@ -3,7 +3,7 @@ import os
 
 from setuptools import find_packages, setup
 
-for line in open("vocos/__init__.py"):
+for line in open("vocos_causal/__init__.py"):
     line = line.strip()
     if "__version__" in line:
         context = {}
@@ -25,7 +25,7 @@ def read_requirements(path):
 
 
 setup(
-    name="vocos_casual",
+    name="vocos_causal",
     version=VERSION,
     author="Hubert Siuzdak",
     author_email="huberts@charactr.com",

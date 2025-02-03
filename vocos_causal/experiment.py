@@ -7,13 +7,13 @@ import torchaudio
 import transformers
 import wandb
 
-from vocos.discriminators import MultiPeriodDiscriminator, MultiResolutionDiscriminator
-from vocos.feature_extractors import FeatureExtractor
-from vocos.heads import FourierHead
-from vocos.helpers import plot_spectrogram_to_numpy
-from vocos.loss import DiscriminatorLoss, GeneratorLoss, FeatureMatchingLoss, MelSpecReconstructionLoss
-from vocos.models import Backbone
-from vocos.modules import safe_log
+from vocos_causal.discriminators import MultiPeriodDiscriminator, MultiResolutionDiscriminator
+from vocos_causal.feature_extractors import FeatureExtractor
+from vocos_causal.heads import FourierHead
+from vocos_causal.helpers import plot_spectrogram_to_numpy
+from vocos_causal.loss import DiscriminatorLoss, GeneratorLoss, FeatureMatchingLoss, MelSpecReconstructionLoss
+from vocos_causal.models import Backbone
+from vocos_causal.modules import safe_log
 
 
 class VocosExp(pl.LightningModule):

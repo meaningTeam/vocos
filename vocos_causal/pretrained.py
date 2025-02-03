@@ -6,9 +6,9 @@ import torch
 import yaml
 from huggingface_hub import hf_hub_download
 from torch import nn
-from vocos.feature_extractors import FeatureExtractor, EncodecFeatures
-from vocos.heads import FourierHead
-from vocos.models import Backbone
+from vocos_causal.feature_extractors import FeatureExtractor, EncodecFeatures
+from vocos_causal.heads import FourierHead
+from vocos_causal.models import Backbone
 
 
 def instantiate_class(args: Union[Any, Tuple[Any, ...]], init: Dict[str, Any]) -> Any:

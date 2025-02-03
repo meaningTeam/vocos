@@ -2,7 +2,7 @@
 seed_everything: 4444
 
 data:
-  class_path: vocos.dataset.VocosDataModule
+  class_path: vocos_causal.dataset.VocosDataModule
   init_args:
     train_params:
       filelist_path: ???
@@ -19,7 +19,7 @@ data:
       num_workers: 8
 
 model:
-  class_path: vocos.experiment.VocosExp
+  class_path: vocos_causal.experiment.VocosExp
   init_args:
     sample_rate: 24000
     initial_learning_rate: 5e-4
@@ -34,7 +34,7 @@ model:
     evaluate_periodicty: true
 
     feature_extractor:
-      class_path: vocos.feature_extractors.MelSpectrogramFeatures
+      class_path: vocos_causal.feature_extractors.MelSpectrogramFeatures
       init_args:
         sample_rate: 24000
         n_fft: 1024
@@ -43,14 +43,14 @@ model:
         padding: center
 
     backbone:
-      class_path: vocos.models.VocosResNetBackbone
+      class_path: vocos_causal.models.VocosResNetBackbone
       init_args:
         input_channels: 100
         dim: 512
         num_blocks: 3
 
     head:
-      class_path: vocos.heads.ISTFTHead
+      class_path: vocos_causal.heads.ISTFTHead
       init_args:
         dim: 512
         n_fft: 1024
@@ -73,7 +73,7 @@ trainer:
         filename: vocos_checkpoint_{epoch}_{step}_{val_loss:.4f}
         save_top_k: 3
         save_last: true
-    - class_path: vocos.helpers.GradNormCallback
+    - class_path: vocos_causal.helpers.GradNormCallback
 
   # Lightning calculates max_steps across all optimizer steps (rather than number of batches)
   # This equals to 1M steps per generator and 1M per discriminator

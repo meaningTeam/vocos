@@ -4,7 +4,7 @@ import torch
 import torchaudio
 from torch import nn
 
-from vocos.modules import safe_log
+from vocos_causal.modules import safe_log
 
 
 class MelSpecReconstructionLoss(nn.Module):

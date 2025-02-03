@@ -31,10 +31,10 @@ import torch
 
 from vocos import Vocos
 
-vocos = Vocos.from_pretrained("charactr/vocos-mel-24khz")
+vocos = vocos_causal.from_pretrained("charactr/vocos-mel-24khz")
 
 mel = torch.randn(1, 100, 256)  # B, C, T
-audio = vocos.decode(mel)
+audio = vocos_causal.decode(mel)
 ```
 
 Copy-synthesis from a file:
@@ -55,13 +55,13 @@ Additionally, you need to provide a `bandwidth_id` which corresponds to the embe
 list: `[1.5, 3.0, 6.0, 12.0]`.
 
 ```python
-vocos = Vocos.from_pretrained("charactr/vocos-encodec-24khz")
+vocos = vocos_causal.from_pretrained("charactr/vocos-encodec-24khz")
 
 audio_tokens = torch.randint(low=0, high=1024, size=(8, 200))  # 8 codeboooks, 200 frames
-features = vocos.codes_to_features(audio_tokens)
+features = vocos_causal.codes_to_features(audio_tokens)
 bandwidth_id = torch.tensor([2])  # 6 kbps
 
-audio = vocos.decode(features, bandwidth_id=bandwidth_id)
+audio = vocos_causal.decode(features, bandwidth_id=bandwidth_id)
 ```
 
 Copy-synthesis from a file: It extracts and quantizes features with EnCodec, then reconstructs them with Vocos in a
@@ -78,7 +78,7 @@ y_hat = vocos(y, bandwidth_id=bandwidth_id)
 
 ### Integrate with 🐶 [Bark](https://github.com/suno-ai/bark) text-to-audio model
 
-See [example notebook](notebooks%2FBark%2BVocos.ipynb).
+See [example notebook](notebooks%2FBark%2Bvocos_causal.ipynb).
 
 ## Pre-trained models
 
@@ -96,10 +96,10 @@ find $TRAIN_DATASET_DIR -name *.wav > filelist.train
 find $VAL_DATASET_DIR -name *.wav > filelist.val
 ```
 
-Fill a config file, e.g. [vocos.yaml](configs%2Fvocos.yaml), with your filelist paths and start training with:
+Fill a config file, e.g. [vocos_causal.yaml](configs%2Fvocos_causal.yaml), with your filelist paths and start training with:
 
 ```bash
-python train.py -c configs/vocos.yaml
+python train.py -c configs/vocos_causal.yaml
 ```
 
 Refer to [Pytorch Lightning documentation](https://lightning.ai/docs/pytorch/stable/) for details about customizing the
