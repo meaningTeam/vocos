@@ -25,7 +25,7 @@ def read_requirements(path):
 
 
 setup(
-    name="vocos",
+    name="vocos-casual",
     version=VERSION,
     author="Hubert Siuzdak",
     author_email="huberts@charactr.com",
