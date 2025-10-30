@@ -41,7 +41,7 @@ def plot_spectrogram_to_numpy(spectrogram: np.ndarray) -> np.ndarray:
     plt.tight_layout()
 
     fig.canvas.draw()
-    data = save_figure_to_numpy(fig)
+    data = np.asarray(fig.canvas.buffer_rgba(), dtype=np.uint8)
     plt.close()
     return data
 

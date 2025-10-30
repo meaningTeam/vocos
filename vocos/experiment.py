@@ -1,4 +1,5 @@
 import math
+import wandb
 
 import numpy as np
 import pytorch_lightning as pl
@@ -163,26 +164,42 @@ class VocosExp(pl.LightningModule):
             self.log("generator/mel_loss", mel_loss)
 
             if self.global_step % 1000 == 0 and self.global_rank == 0:
-                self.logger.experiment.add_audio(
-                    "train/audio_in", audio_input[0].data.cpu(), self.global_step, self.hparams.sample_rate
+                self.logger.experiment.log(
+                    {
+                        "train/audio_in": wandb.Audio(
+                            audio_input[0].data.cpu().numpy(),
+                            sample_rate=self.hparams.sample_rate,
+                            caption=f"Step {self.global_step} - Input Audio",
+                        )
+                    }
                 )
-                self.logger.experiment.add_audio(
-                    "train/audio_pred", audio_hat[0].data.cpu(), self.global_step, self.hparams.sample_rate
+                self.logger.experiment.log(
+                    {
+                        "train/audio_pred": wandb.Audio(
+                            audio_hat[0].data.cpu().numpy(),
+                            sample_rate=self.hparams.sample_rate,
+                            caption=f"Step {self.global_step} - Predicted Audio",
+                        )
+                    }
                 )
                 with torch.no_grad():
                     mel = safe_log(self.melspec_loss.mel_spec(audio_input[0]))
                     mel_hat = safe_log(self.melspec_loss.mel_spec(audio_hat[0]))
-                self.logger.experiment.add_image(
-                    "train/mel_target",
-                    plot_spectrogram_to_numpy(mel.data.cpu().numpy()),
-                    self.global_step,
-                    dataformats="HWC",
+                self.logger.experiment.log(
+                    {
+                        "train/mel_target": wandb.Image(
+                            plot_spectrogram_to_numpy(mel.data.cpu().numpy()),
+                            caption=f"Step {self.global_step} - Target Mel Spectrogram",
+                        )
+                    }
                 )
-                self.logger.experiment.add_image(
-                    "train/mel_pred",
-                    plot_spectrogram_to_numpy(mel_hat.data.cpu().numpy()),
-                    self.global_step,
-                    dataformats="HWC",
+                self.logger.experiment.log(
+                    {
+                        "train/mel_pred": wandb.Image(
+                            plot_spectrogram_to_numpy(mel_hat.data.cpu().numpy()),
+                            caption=f"Step {self.global_step} - Predicted Mel Spectrogram",
+                        )
+                    }
                 )
 
             return loss
@@ -242,25 +259,41 @@ class VocosExp(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         if self.global_rank == 0:
             *_, audio_in, audio_pred = outputs[0].values()
-            self.logger.experiment.add_audio(
-                "val_in", audio_in.data.cpu().numpy(), self.global_step, self.hparams.sample_rate
+            self.logger.experiment.log(
+                {
+                    "val_in": wandb.Audio(
+                        audio_in.data.cpu().numpy(),
+                        sample_rate=self.hparams.sample_rate,
+                        caption=f"Validation Input - Step {self.global_step}",
+                    )
+                }
             )
-            self.logger.experiment.add_audio(
-                "val_pred", audio_pred.data.cpu().numpy(), self.global_step, self.hparams.sample_rate
+            self.logger.experiment.log(
+                {
+                    "val_pred": wandb.Audio(
+                        audio_pred.data.cpu().numpy(),
+                        sample_rate=self.hparams.sample_rate,
+                        caption=f"Validation Prediction - Step {self.global_step}",
+                    )
+                }
             )
             mel_target = safe_log(self.melspec_loss.mel_spec(audio_in))
             mel_hat = safe_log(self.melspec_loss.mel_spec(audio_pred))
-            self.logger.experiment.add_image(
-                "val_mel_target",
-                plot_spectrogram_to_numpy(mel_target.data.cpu().numpy()),
-                self.global_step,
-                dataformats="HWC",
+            self.logger.experiment.log(
+                {
+                    "val_mel_target": wandb.Image(
+                        plot_spectrogram_to_numpy(mel_target.data.cpu().numpy()),
+                        caption=f"Mel Spectrogram Target - Step {self.global_step}",
+                    )
+                }
             )
-            self.logger.experiment.add_image(
-                "val_mel_hat",
-                plot_spectrogram_to_numpy(mel_hat.data.cpu().numpy()),
-                self.global_step,
-                dataformats="HWC",
+            self.logger.experiment.log(
+                {
+                    "val_mel_hat": wandb.Image(
+                        plot_spectrogram_to_numpy(mel_hat.data.cpu().numpy()),
+                        caption=f"Mel Spectrogram Prediction - Step {self.global_step}",
+                    )
+                }
             )
         avg_loss = torch.stack([x["val_loss"] for x in outputs]).mean()
         mel_loss = torch.stack([x["mel_loss"] for x in outputs]).mean()
@@ -364,8 +397,14 @@ class VocosEncodecExp(VocosExp):
             # Resynthesis with encodec for reference
             self.feature_extractor.encodec.set_target_bandwidth(self.feature_extractor.bandwidths[0])
             encodec_audio = self.feature_extractor.encodec(audio_in[None, None, :])
-            self.logger.experiment.add_audio(
-                "encodec", encodec_audio[0, 0].data.cpu().numpy(), self.global_step, self.hparams.sample_rate,
+            self.logger.experiment.log(
+                {
+                    "encodec_audio": wandb.Audio(
+                        encodec_audio[0, 0].data.cpu().numpy(),
+                        sample_rate=self.hparams.sample_rate,
+                        caption=f"Global Step: {self.global_step}",
+                    )
+                }
             )
 
         super().validation_epoch_end(outputs)

@@ -5,16 +5,16 @@ data:
   class_path: vocos.dataset.VocosDataModule
   init_args:
     train_params:
-      filelist_path: ???
+      filelist_path: /fsx/home/tomiinek/vocos/file_paths_train.txt
       sampling_rate: 24000
-      num_samples: 16384
+      num_samples: 15360
       batch_size: 16
       num_workers: 8
 
     val_params:
-      filelist_path: ???
+      filelist_path: /fsx/home/tomiinek/vocos/file_paths_dev.txt
       sampling_rate: 24000
-      num_samples: 48384
+      num_samples: 45360
       batch_size: 16
       num_workers: 8
 
@@ -29,16 +29,16 @@ model:
     pretrain_mel_steps: 0  # 0 means GAN objective from the first iteration
 
     # automatic evaluation
-    evaluate_utmos: true
+    evaluate_utmos: false
     evaluate_pesq: true
-    evaluate_periodicty: true
+    evaluate_periodicty: false
 
     feature_extractor:
       class_path: vocos.feature_extractors.MelSpectrogramFeatures
       init_args:
         sample_rate: 24000
-        n_fft: 1024
-        hop_length: 256
+        n_fft: 960
+        hop_length: 240
         n_mels: 100
         padding: center
 
@@ -54,14 +54,16 @@ model:
       class_path: vocos.heads.ISTFTHead
       init_args:
         dim: 512
-        n_fft: 1024
-        hop_length: 256
+        n_fft: 960
+        hop_length: 240
         padding: center
 
 trainer:
   logger:
-    class_path: pytorch_lightning.loggers.TensorBoardLogger
+    class_path: pytorch_lightning.loggers.WandbLogger
     init_args:
+      name: experiment
+      project: streaming_vocos
       save_dir: logs/
   callbacks:
     - class_path: pytorch_lightning.callbacks.LearningRateMonitor

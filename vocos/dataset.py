@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torchaudio
 from pytorch_lightning import LightningDataModule
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset, default_collate
 
 torch.set_num_threads(1)
 
@@ -26,8 +26,21 @@ class VocosDataModule(LightningDataModule):
 
     def _get_dataloder(self, cfg: DataConfig, train: bool):
         dataset = VocosDataset(cfg, train=train)
+
+        def collate_fn(batch):
+            batch = [item for item in batch if item is not None]
+            if not batch:
+                return None
+            return default_collate(batch)
+        
         dataloader = DataLoader(
-            dataset, batch_size=cfg.batch_size, num_workers=cfg.num_workers, shuffle=train, pin_memory=True,
+            dataset,
+            batch_size=cfg.batch_size,
+            num_workers=cfg.num_workers,
+            shuffle=train,
+            pin_memory=True,
+            prefetch_factor=4,
+            collate_fn=collate_fn,
         )
         return dataloader
 
@@ -51,7 +64,12 @@ class VocosDataset(Dataset):
 
     def __getitem__(self, index: int) -> torch.Tensor:
         audio_path = self.filelist[index]
-        y, sr = torchaudio.load(audio_path)
+        try:
+            y, sr = torchaudio.load(audio_path)
+        except Exception as e:
+            print(f"Warning: Failed to load {audio_path}: {e}")
+            return None
+        
         if y.size(0) > 1:
             # mix to mono
             y = y.mean(dim=0, keepdim=True)
